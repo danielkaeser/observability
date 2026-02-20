@@ -1,0 +1,90 @@
+helmDefaults:
+  wait: true
+  timeout: 900
+  atomic: true
+  cleanupOnFail: true
+  createNamespace: true
+
+repositories:
+  - name: prometheus-community
+    url: https://prometheus-community.github.io/helm-charts
+  - name: grafana
+    url: https://grafana.github.io/helm-charts
+---
+environments:
+  default:
+    values:
+      - ./environments/default.yaml
+      #- environments/secrets.yaml.gotmpl
+  prod:
+    values:
+      - environments/default.yaml
+      - environments/prod.yaml
+      # Add your secrets file here (SOPS / external injection)
+      # - environments/prod.secrets.yaml
+---
+
+releases:
+
+  - name: apisix-oidc-plugin
+    namespace: monitoring
+    chart: ./charts/bootstrap-secrets
+    version: "1.0.0"
+    #values:
+    #  - values/apisix-oidc-plugin.yaml
+
+  - name: kube-prometheus-stack
+    namespace: monitoring
+    chart: prometheus-community/kube-prometheus-stack
+    version: "{{ .Values.versions.kubePrometheusStack }}"
+    values:
+      - values/kube-prometheus-stack.yaml
+      - values/alertmanager.yaml
+      - values/grafana.yaml
+      - values/ingress.yaml.gotmpl
+      #- values/storage.yaml
+
+  - name: prometheus-adapter
+    namespace: monitoring
+    installed: {{ .Values.features.prometheusAdapter | default false }}
+    chart: prometheus-community/prometheus-adapter
+    version: "{{ .Values.versions.prometheusAdapter }}"
+    needs: [ "monitoring/kube-prometheus-stack" ]
+    values:
+      - values/prometheus-adapter.yaml
+
+  - name: prometheus-blackbox-exporter
+    namespace: monitoring
+    installed: {{ .Values.features.blackboxExporter | default false }}
+    chart: prometheus-community/prometheus-blackbox-exporter
+    version: "{{ .Values.versions.blackboxExporter }}"
+    needs: [ "monitoring/kube-prometheus-stack" ]
+    values:
+      - values/blackbox-exporter.yaml
+
+  - name: loki
+    namespace: monitoring
+    installed: {{ .Values.features.loki | default false }}
+    chart: grafana/loki
+    version: "{{ .Values.versions.loki }}"
+    values:
+      - values/loki.yaml
+      #- values/storage.yaml
+
+  - name: promtail
+    namespace: monitoring
+    installed: {{ .Values.features.promtail | default false }}
+    chart: grafana/promtail
+    version: "{{ .Values.versions.promtail }}"
+    needs: [ "monitoring/loki" ]
+    values:
+      - values/promtail.yaml
+
+  - name: tempo
+    namespace: monitoring
+    installed: {{ .Values.features.tempo | default false }}
+    chart: grafana/tempo
+    version: "{{ .Values.versions.tempo }}"
+    values:
+      - values/tempo.yaml
+      #- values/storage.yaml

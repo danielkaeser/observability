@@ -1,0 +1,8 @@
+config:
+  modules:
+    http_2xx:
+      prober: http
+      timeout: 5s
+
+serviceMonitor:
+  enabled: true

@@ -1,0 +1,33 @@
+grafana:
+  # adminPassword must be provided via secret override file / external secret
+  #admin:
+  #  existingSecret: grafana-admin
+  #  userKey: admin-user
+  #  passwordKey: admin-password
+
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+    datasources:
+      enabled: true
+      defaultDatasourceEnabled: true
+
+  grafana.ini:
+    server:
+      root_url: "%(protocol)s://%(domain)s/"
+    auth.anonymous:
+      enabled: false
+
+  # Datasource additions (Tempo/Loki) are added automatically below when enabled.
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki.monitoring.svc:3100
+      isDefault: false
+    - name: Tempo
+      type: tempo
+      access: proxy
+      url: http://tempo.monitoring.svc:3100
+      isDefault: false

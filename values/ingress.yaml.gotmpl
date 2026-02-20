@@ -1,0 +1,37 @@
+# Ingress for Grafana / Prometheus / Alertmanager (ingress-nginx defaults)
+
+grafana:
+  ingress:
+    enabled: true
+    ingressClassName: "{{ .Values.cluster.ingressClassName }}"
+    pathType: Prefix
+    annotations:
+      k8s.apisix.apache.org/plugin-config-name: "my-oidc-authcode"
+    hosts:
+      - "{{ .Values.dns.grafanaHost }}"
+    paths:
+      - /
+
+prometheus:
+  ingress:
+    enabled: true
+    ingressClassName: "{{ .Values.cluster.ingressClassName }}"
+    pathType: Prefix
+    annotations:
+      k8s.apisix.apache.org/plugin-config-name: "my-oidc-authcode"
+    hosts:
+      - "{{ .Values.dns.prometheusHost }}"
+    paths:
+      - /
+
+alertmanager:
+  ingress:
+    enabled: true
+    ingressClassName: "{{ .Values.cluster.ingressClassName }}"
+    pathType: Prefix
+    annotations:
+      k8s.apisix.apache.org/plugin-config-name: "my-oidc-authcode"
+    hosts:
+      - "{{ .Values.dns.alertmanagerHost }}"
+    paths:
+      - /

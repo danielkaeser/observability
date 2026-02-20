@@ -1,0 +1,72 @@
+alloy:
+  extraPorts:
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+      protocol: TCP
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318
+      protocol: TCP
+
+  configMap:
+    create: true
+    content: |-
+      logging {
+        level  = "info"
+        format = "logfmt"
+      }
+
+      // Receive OTLP (metrics, traces, logs)
+      otelcol.receiver.otlp "ingest" {
+        grpc { endpoint = "0.0.0.0:4317" }
+        http { endpoint = "0.0.0.0:4318" }
+
+        output {
+          metrics = [otelcol.processor.batch.default.input]
+          traces  = [otelcol.processor.batch.default.input]
+          logs    = [otelcol.processor.batch.default.input]
+        }
+      }
+
+      // Batch before export
+      otelcol.processor.batch "default" {
+        output {
+          metrics = [otelcol.exporter.prometheus.metrics_to_rw.input]
+          traces  = [otelcol.exporter.otlp.tempo.input]
+          logs    = [otelcol.exporter.loki.to_loki.input]
+        }
+      }
+
+      // ---- TRACES -> Tempo (OTLP/gRPC)
+      otelcol.exporter.otlp "tempo" {
+        client {
+          endpoint = "http://tempo-distributor.tracing.svc.cluster.local:4317"
+          tls {
+            insecure = true
+            insecure_skip_verify = true
+          }
+        }
+      }
+
+      // ---- METRICS -> Prometheus remote_write
+      otelcol.exporter.prometheus "metrics_to_rw" {
+        forward_to = [prometheus.remote_write.prom.receiver]
+      }
+
+      prometheus.remote_write "prom" {
+        endpoint {
+          url = "http://kps-kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
+        }
+      }
+
+      // ---- LOGS -> Loki
+      otelcol.exporter.loki "to_loki" {
+        forward_to = [loki.write.default.receiver]
+      }
+
+      loki.write "default" {
+        endpoint {
+          url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+        }
+      }

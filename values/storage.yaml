@@ -1,0 +1,25 @@
+# Central storage knobs used by multiple charts
+# Prometheus: PVC via kube-prometheus-stack values
+# Loki/Tempo: chart-specific persistence below
+
+prometheus:
+  prometheusSpec:
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: "{{ .Values.cluster.storageClassName }}"
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 50Gi
+
+alertmanager:
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: "{{ .Values.cluster.storageClassName }}"
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
