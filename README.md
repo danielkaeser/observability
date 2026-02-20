@@ -1,28 +1,26 @@
-# Monitoring stack (production-leaning) via Helmfile
+# Observability stack (production-leaning) via Helmfile
 
 This bundle installs kube-prometheus-stack plus optional "friends":
 - Prometheus Adapter (HPA custom/external metrics)
 - Blackbox Exporter
 - Loki + Promtail (logs)
 - Tempo (traces)
-- (Optional) Thanos is stubbed (commented) for later
+- Alloy
 
 ## Quick start
 ```bash
-cd monitoring-prod
-helmfile repos
-helmfile -e prod apply
+helmfile -e default apply
 ```
 
-## Customize
-1. Edit `environments/prod.yaml` for your cluster specifics:
-   - storageClassName
-   - ingress class
-   - hostnames
-2. Put secrets in your preferred secrets manager.
-   - This repo uses placeholders + `values/secret-overrides.example.yaml`
-   - Recommended: External Secrets Operator or SOPS + helmfile `secrets:`
+## Setup
 
-## Notes
-- Grafana admin password is **not** committed; set it via secrets.
-- Ingress is configured for ingress-nginx by default and expects cert-manager ClusterIssuer.
+Needs a local executable file `set-env-vars.sh`
+
+```bash
+export OIDC_CLIENT_ID=<CLIENT>
+export OIDC_CLIENT_SECRET=<SECRET>
+export OIDC_SESSION_SECRET=<SECRET>
+export OIDC_DISCOVERY_URL=https://auth.danielkaeser2026.de/realms/demo/.well-known/openid-configuration
+
+export GRAFANA_ADMIN_PASSWORD=<SECRET>
+```

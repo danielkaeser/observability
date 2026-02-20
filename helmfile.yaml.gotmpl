@@ -27,43 +27,43 @@ environments:
 releases:
 
   - name: apisix-oidc-plugin
-    namespace: monitoring
+    namespace: observability
     chart: ./charts/bootstrap-secrets
     version: "1.0.0"
-    #values:
-    #  - values/apisix-oidc-plugin.yaml
+    values:
+      - ./charts/bootstrap-secrets/values.yaml.gotmpl
 
   - name: kube-prometheus-stack
-    namespace: monitoring
+    namespace: observability
     chart: prometheus-community/kube-prometheus-stack
     version: "{{ .Values.versions.kubePrometheusStack }}"
     values:
-      - values/kube-prometheus-stack.yaml
+      - values/kube-prometheus-stack.yaml.gotmpl
       - values/alertmanager.yaml
       - values/grafana.yaml
       - values/ingress.yaml.gotmpl
       #- values/storage.yaml
 
   - name: prometheus-adapter
-    namespace: monitoring
+    namespace: observability
     installed: {{ .Values.features.prometheusAdapter | default false }}
     chart: prometheus-community/prometheus-adapter
     version: "{{ .Values.versions.prometheusAdapter }}"
-    needs: [ "monitoring/kube-prometheus-stack" ]
+    needs: [ "observability/kube-prometheus-stack" ]
     values:
       - values/prometheus-adapter.yaml
 
   - name: prometheus-blackbox-exporter
-    namespace: monitoring
+    namespace: observability
     installed: {{ .Values.features.blackboxExporter | default false }}
     chart: prometheus-community/prometheus-blackbox-exporter
     version: "{{ .Values.versions.blackboxExporter }}"
-    needs: [ "monitoring/kube-prometheus-stack" ]
+    needs: [ "observability/kube-prometheus-stack" ]
     values:
       - values/blackbox-exporter.yaml
 
   - name: loki
-    namespace: monitoring
+    namespace: observability
     installed: {{ .Values.features.loki | default false }}
     chart: grafana/loki
     version: "{{ .Values.versions.loki }}"
@@ -72,16 +72,16 @@ releases:
       #- values/storage.yaml
 
   - name: promtail
-    namespace: monitoring
+    namespace: observability
     installed: {{ .Values.features.promtail | default false }}
     chart: grafana/promtail
     version: "{{ .Values.versions.promtail }}"
-    needs: [ "monitoring/loki" ]
+    needs: [ "observability/loki" ]
     values:
       - values/promtail.yaml
 
   - name: tempo
-    namespace: monitoring
+    namespace: observability
     installed: {{ .Values.features.tempo | default false }}
     chart: grafana/tempo
     version: "{{ .Values.versions.tempo }}"

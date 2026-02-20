@@ -56,7 +56,7 @@ alloy:
 
       prometheus.remote_write "prom" {
         endpoint {
-          url = "http://kps-kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
+          url = "http://kps-kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090/api/v1/write"
         }
       }
 
@@ -67,6 +67,6 @@ alloy:
 
       loki.write "default" {
         endpoint {
-          url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+          url = "http://loki.observability.svc.cluster.local:3100/loki/api/v1/push"
         }
       }

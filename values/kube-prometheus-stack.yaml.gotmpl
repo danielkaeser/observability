@@ -20,7 +20,7 @@ prometheus:
   additionalDataSources:
     - name: Loki
       type: loki
-      url: http://loki-gateway.monitoring.svc.cluster.local
+      url: http://loki-gateway.observability.svc.cluster.local
       access: proxy
       # Even with auth_enabled: false, Loki requires an org ID header
       # This is a known quirk - the value can be anything since auth is disabled
@@ -34,6 +34,8 @@ alertmanager:
 
 grafana:
   enabled: true
+  adminUser: admin
+  adminPassword: {{ requiredEnv "GRAFANA_ADMIN_PASSWORD" }}
 
 defaultRules:
   create: true

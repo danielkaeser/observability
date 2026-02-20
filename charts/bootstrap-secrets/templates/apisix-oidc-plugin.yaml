@@ -7,15 +7,15 @@ spec:
     - name: openid-connect
       enable: true
       config:
-        discovery: "https://auth.danielkaeser2026.de/realms/demo/.well-known/openid-configuration"
-        client_id: "demo-client"
-        client_secret: "zM49oW3Hctx75oSPbyVCkMSDAnFT8u3z"
+        discovery: "{{ .Values.oidc.discoveryUrl }}"
+        client_id: "{{ .Values.oidc.clientId }}"
+        client_secret: "{{ .Values.oidc.clientSecret }}"
         bearer_only: false
         #redirect_uri: "/anything/callback"
         #redirect_uri: "https://prometheus.danielkaeser2026.de/anything/callback"
         scope: "openid profile email"
         session:
-          secret: "someNiceRandomSessionSecretWurstbrot123"
+          secret: "{{ .Values.oidc.sessionSecret }}"
         # optional but often useful:
         set_access_token_header: true
         #set_refresh_token_header: true

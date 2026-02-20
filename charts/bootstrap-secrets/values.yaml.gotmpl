@@ -1,0 +1,5 @@
+oidc:
+  clientId: {{ requiredEnv "OIDC_CLIENT_ID" }}
+  clientSecret: {{ requiredEnv "OIDC_CLIENT_SECRET" }}
+  discoveryUrl: {{ requiredEnv "OIDC_DISCOVERY_URL" }}
+  sessionSecret: {{ requiredEnv "OIDC_SESSION_SECRET" }}
